@@ -11,6 +11,7 @@ El repositorio se encuentra en fase de diseño arquitectónico. La selección de
 ## Documentación
 
 - [Arquitectura del módulo Booking](docs/architecture/arquitectura-modulo-booking-marketing.md)
+- [Stack tecnológico y estructura backend](docs/architecture/technology-stack.md)
 - [Índice de documentación](docs/README.md)
 - [Despliegues automáticos](docs/operations/automatic-deployments.md)
 
@@ -37,3 +38,12 @@ AgendamientoMKT/
 - Integraciones previstas con Outlook, Teams, Planner, Power BI y Power Automate.
 - Acceso interno y consulta pública de disponibilidad agregada.
 - Auditoría y versiones permanentes.
+
+## Base de datos local
+
+```powershell
+Copy-Item .env.example .env
+docker compose run --rm sqlserver-init
+```
+
+Docker Compose reutiliza `requirements-sqlserver` y crea la base `AgendamientoMKT` de forma idempotente, sin levantar una segunda instancia.

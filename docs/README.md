@@ -3,6 +3,7 @@
 ## Arquitectura
 
 - [Diseño integral del módulo Booking](architecture/arquitectura-modulo-booking-marketing.md)
+- [Stack tecnológico y estructura backend](architecture/technology-stack.md)
 
 ## Organización documental
 
