@@ -15,3 +15,6 @@
 
 La documentación debe actualizarse junto con los cambios funcionales y técnicos correspondientes.
 
+## Operación
+
+- [Despliegues automáticos](operations/automatic-deployments.md)

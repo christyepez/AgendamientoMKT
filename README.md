@@ -12,6 +12,7 @@ El repositorio se encuentra en fase de diseño arquitectónico. La selección de
 
 - [Arquitectura del módulo Booking](docs/architecture/arquitectura-modulo-booking-marketing.md)
 - [Índice de documentación](docs/README.md)
+- [Despliegues automáticos](docs/operations/automatic-deployments.md)
 
 ## Estructura prevista
 
@@ -36,4 +37,3 @@ AgendamientoMKT/
 - Integraciones previstas con Outlook, Teams, Planner, Power BI y Power Automate.
 - Acceso interno y consulta pública de disponibilidad agregada.
 - Auditoría y versiones permanentes.
-

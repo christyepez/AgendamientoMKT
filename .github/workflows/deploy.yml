@@ -1,0 +1,102 @@
+name: Deploy
+
+on:
+  push:
+    branches: [dev, test, prod]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Select environment
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.map.outputs.environment }}
+      deploy_name: ${{ steps.map.outputs.deploy_name }}
+    steps:
+      - name: Map branch to environment
+        id: map
+        shell: bash
+        run: |
+          case "${GITHUB_REF_NAME}" in
+            dev)
+              echo "environment=development" >> "$GITHUB_OUTPUT"
+              echo "deploy_name=dev" >> "$GITHUB_OUTPUT"
+              ;;
+            test)
+              echo "environment=testing" >> "$GITHUB_OUTPUT"
+              echo "deploy_name=test" >> "$GITHUB_OUTPUT"
+              ;;
+            prod)
+              echo "environment=production" >> "$GITHUB_OUTPUT"
+              echo "deploy_name=prod" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "Unsupported deployment branch: ${GITHUB_REF_NAME}" >&2
+              exit 1
+              ;;
+          esac
+
+  deploy:
+    name: Deploy to ${{ needs.prepare.outputs.environment }}
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ needs.prepare.outputs.environment }}
+      url: ${{ vars.ENVIRONMENT_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Explain disabled deployment
+        if: vars.DEPLOY_ENABLED != 'true'
+        shell: bash
+        run: |
+          echo "Deployment is configured but disabled for this environment." >> "$GITHUB_STEP_SUMMARY"
+          echo "Set environment variable DEPLOY_ENABLED=true after configuring its SSH secrets and variables." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Configure SSH
+        if: vars.DEPLOY_ENABLED == 'true'
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          set -euo pipefail
+          test -n "$SSH_PRIVATE_KEY"
+          test -n "$SSH_HOST"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Deploy application
+        if: vars.DEPLOY_ENABLED == 'true'
+        shell: bash
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+          DEPLOY_NAME: ${{ needs.prepare.outputs.deploy_name }}
+          DEPLOY_BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          test -n "$SSH_USER"
+          test -n "$DEPLOY_PATH"
+          ssh "$SSH_USER@$SSH_HOST" \
+            "bash -s -- '$DEPLOY_PATH' '$DEPLOY_NAME' '$DEPLOY_BRANCH'" \
+            < deploy/remote-deploy.sh
+
+      - name: Verify health endpoint
+        if: vars.DEPLOY_ENABLED == 'true' && vars.HEALTHCHECK_URL != ''
+        shell: bash
+        env:
+          HEALTHCHECK_URL: ${{ vars.HEALTHCHECK_URL }}
+        run: curl --fail --silent --show-error --retry 6 --retry-delay 10 "$HEALTHCHECK_URL"
+

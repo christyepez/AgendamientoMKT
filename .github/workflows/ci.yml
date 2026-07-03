@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [dev, test, prod]
+  push:
+    branches: [dev, test, prod]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate required documentation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s README.md
+          test -s docs/architecture/arquitectura-modulo-booking-marketing.md
+
+      - name: Validate Docker Compose when present
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(docker-compose.yml compose.yml deploy/docker-compose.*.yml)
+          for file in "${files[@]}"; do
+            docker compose -f "$file" config --quiet
+          done
+
+      - name: Build and test .NET when present
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t solutions < <(find . -name '*.sln' -o -name '*.slnx')
+          if (( ${#solutions[@]} > 0 )); then
+            dotnet restore "${solutions[0]}"
+            dotnet build "${solutions[0]}" --no-restore --configuration Release
+            dotnet test "${solutions[0]}" --no-build --configuration Release
+          fi
+
+      - name: Build and test frontend when present
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f package-lock.json ]]; then
+            npm ci
+            npm test --if-present
+            npm run build --if-present
+          fi
+
