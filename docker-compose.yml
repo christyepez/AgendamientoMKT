@@ -1,7 +1,6 @@
 name: agendamiento-mkt
 
-# Este proyecto reutiliza la instancia SQL Server del Docker Compose de
-# requirements-platform. No crea un segundo motor de base de datos.
+# Reutiliza requirements-sqlserver y requirements-platform_default.
 services:
   sqlserver-init:
     image: mcr.microsoft.com/mssql/server:2022-latest
@@ -16,19 +15,55 @@ services:
     entrypoint: ["/bin/bash", "-c"]
     command:
       - >-
-        /opt/mssql-tools18/bin/sqlcmd
-        -S "$${MSSQL_HOST}"
-        -U sa
-        -P "$${MSSQL_SA_PASSWORD}"
-        -C
-        -b
-        -v DatabaseName="$${MSSQL_DATABASE}"
-        -i /scripts/init.sql
-    networks:
-      - requirements-network
+        /opt/mssql-tools18/bin/sqlcmd -S "$${MSSQL_HOST}" -U sa
+        -P "$${MSSQL_SA_PASSWORD}" -C -b
+        -v DatabaseName="$${MSSQL_DATABASE}" -i /scripts/init.sql
+    networks: [requirements-network]
+
+  api:
+    build:
+      context: .
+      dockerfile: src/AgendamientoMKT.Api/Dockerfile
+    container_name: agendamiento-mkt-api
+    restart: unless-stopped
+    depends_on:
+      sqlserver-init:
+        condition: service_completed_successfully
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Default: Server=${MSSQL_HOST:-requirements-sqlserver};Database=${MSSQL_DATABASE:-AgendamientoMKT};User Id=sa;Password=${MSSQL_SA_PASSWORD};Encrypt=True;TrustServerCertificate=True
+      Jwt__Key: ${JWT_KEY:?Configure JWT_KEY in .env}
+      Seed__AdminEmail: ${ADMIN_EMAIL:-admin@agendamientomkt.local}
+      Seed__AdminPassword: ${ADMIN_PASSWORD:?Configure ADMIN_PASSWORD in .env}
+    ports:
+      - "${API_PORT:-5200}:8080"
+    networks: [requirements-network]
+
+  web:
+    build:
+      context: .
+      dockerfile: src/AgendamientoMKT.Web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ""
+    container_name: agendamiento-mkt-web
+    restart: unless-stopped
+    depends_on: [api]
+    ports:
+      - "${WEB_PORT:-3001}:3001"
+    networks: [requirements-network]
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: agendamiento-mkt-nginx
+    restart: unless-stopped
+    depends_on: [api, web]
+    volumes:
+      - ./deploy/nginx.local.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "${APP_PORT:-8088}:80"
+    networks: [requirements-network]
 
 networks:
   requirements-network:
     external: true
     name: ${REQUIREMENTS_NETWORK:-requirements-platform_default}
-

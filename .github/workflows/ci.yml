@@ -9,6 +9,11 @@ on:
 permissions:
   contents: read
 
+env:
+  MSSQL_SA_PASSWORD: CiOnly_StrongPassword_2026!
+  JWT_KEY: CI_ONLY_CHANGE_THIS_KEY_32_BYTES_MINIMUM_2026
+  ADMIN_PASSWORD: CiOnly.Admin.Password.2026!
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -20,6 +25,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
 
       - name: Validate required documentation
         shell: bash
@@ -53,9 +68,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [[ -f package-lock.json ]]; then
-            npm ci
-            npm test --if-present
-            npm run build --if-present
+          if [[ -f src/AgendamientoMKT.Web/pnpm-lock.yaml ]]; then
+            corepack enable
+            cd src/AgendamientoMKT.Web
+            pnpm install --frozen-lockfile
+            pnpm lint
+            pnpm typecheck
+            pnpm build
           fi
-

@@ -6,7 +6,7 @@ El proyecto permitirá planificar la capacidad del equipo, asignar integrantes a
 
 ## Estado
 
-El repositorio se encuentra en fase de diseño arquitectónico. La selección del stack tecnológico se realizará como un paso posterior.
+MVP ejecutable en desarrollo: API, frontend, autenticación, permisos, administración, booking, auditoría, métricas y entorno Docker local.
 
 ## Documentación
 
@@ -46,4 +46,28 @@ Copy-Item .env.example .env
 docker compose run --rm sqlserver-init
 ```
 
-Docker Compose reutiliza `requirements-sqlserver` y crea la base `AgendamientoMKT` de forma idempotente, sin levantar una segunda instancia.
+Docker Compose reutiliza `requirements-sqlserver` y crea la base `AgendamientoMKT` de forma idempotente, sin levantar una segunda instancia. Después levanta API, web y Nginx.
+
+Accesos locales:
+
+- Aplicación: `http://localhost:8088`
+- API/Swagger en desarrollo: `http://localhost:5200/swagger`
+- Frontend directo: `http://localhost:3001`
+
+Usuario inicial local:
+
+- Correo: `admin@agendamientomkt.local`
+- Contraseña: la configurada en `ADMIN_PASSWORD`.
+
+Las credenciales del archivo de ejemplo deben reemplazarse antes de almacenar información real.
+
+## Calidad
+
+```powershell
+dotnet build AgendamientoMKT.slnx -c Release
+dotnet test AgendamientoMKT.slnx -c Release
+cd src/AgendamientoMKT.Web
+pnpm lint
+pnpm typecheck
+pnpm build
+```

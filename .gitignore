@@ -11,6 +11,7 @@ coverage/
 dist/
 .next/
 node_modules/
+*.tsbuildinfo
 
 # IDE and OS
 .vs/
@@ -23,4 +24,3 @@ Thumbs.db
 *.log
 tmp/
 temp/
-

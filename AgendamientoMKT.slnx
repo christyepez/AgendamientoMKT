@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/AgendamientoMKT.Api/AgendamientoMKT.Api.csproj" />
+  <Project Path="tests/AgendamientoMKT.UnitTests/AgendamientoMKT.UnitTests.csproj" />
+</Solution>

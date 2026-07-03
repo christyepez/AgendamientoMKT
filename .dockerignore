@@ -1,0 +1,12 @@
+.git
+.github
+**/bin
+**/obj
+**/node_modules
+**/.next
+**/coverage
+**/*.user
+**/*.log
+.env
+docs
+tests
