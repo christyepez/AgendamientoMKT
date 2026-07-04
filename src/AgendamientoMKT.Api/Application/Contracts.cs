@@ -24,6 +24,7 @@ public sealed record ConfigurationCenterDto(IReadOnlyCollection<ParameterDto> Pa
 public sealed record BookingDto(Guid Id, Guid RequirementId, Guid ActivityId, string Title, string Priority, decimal EstimatedHours, string Status, int Version, IReadOnlyCollection<AssignmentDto> Assignments);
 public sealed record AssignmentDto(Guid Id, Guid UserId, string Role, decimal AllocatedHours, string Confirmation, IReadOnlyCollection<BlockDto> Blocks);
 public sealed record BlockDto(Guid Id, DateTimeOffset Start, DateTimeOffset End, decimal Hours);
+public sealed record IntegrationStatusDto(string Code, string Name, bool Configured, bool Available, string Status, DateTimeOffset CheckedAt);
 
 public interface ICurrentUser { Guid? UserId { get; } }
 public interface IClock { DateTimeOffset UtcNow { get; } }

@@ -1,11 +1,12 @@
 using AgendamientoMKT.Api.Application;
+using AgendamientoMKT.Api.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AgendamientoMKT.Api.Api;
 
 [ApiController, Route("api/administration"), Authorize]
-public sealed class AdministrationController(IAdministrationRepository repository, AdministrationService service) : ControllerBase
+public sealed class AdministrationController(IAdministrationRepository repository, AdministrationService service, MicrosoftIntegrationService integrations) : ControllerBase
 {
     [HttpGet("lookups")]
     public async Task<object> Lookups(CancellationToken ct) => new { roles = await repository.RolesAsync(ct), sites = await repository.SitesAsync(ct), services = await repository.ServicesAsync(ct) };
@@ -39,4 +40,10 @@ public sealed class AdministrationController(IAdministrationRepository repositor
 
     [HttpGet("metrics"), Authorize(Policy = "METRICS.VIEW")]
     public Task<IReadOnlyCollection<MetricSummaryDto>> Metrics([FromQuery] int days, CancellationToken ct) => service.MetricsAsync(days, ct);
+
+    [HttpGet("integrations"), Authorize(Policy = "PARAMETERS.MANAGE")]
+    public Task<IReadOnlyCollection<IntegrationStatusDto>> Integrations(CancellationToken ct) => integrations.StatusAsync(false, ct);
+
+    [HttpPost("integrations/test"), Authorize(Policy = "PARAMETERS.MANAGE")]
+    public Task<IReadOnlyCollection<IntegrationStatusDto>> TestIntegrations(CancellationToken ct) => integrations.StatusAsync(true, ct);
 }

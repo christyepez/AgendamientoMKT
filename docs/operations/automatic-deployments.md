@@ -1,5 +1,16 @@
 # Despliegues automáticos
 
+## Flujo actual
+
+Cada `push` a `dev`, `test` o `prod` compila y publica dos imágenes versionadas en GitHub Container Registry:
+
+- `ghcr.io/christyepez/agendamientomkt-api:<rama>`
+- `ghcr.io/christyepez/agendamientomkt-web:<rama>`
+
+Después, el runner se conecta por SSH, selecciona `deploy/docker-compose.remote.yml`, carga `deploy/.env.<ambiente>` en el servidor y despliega con un nombre de proyecto aislado. El archivo cifrado de secretos no se copia desde GitHub.
+
+Antes de habilitar cada ambiente, copiar `deploy/.env.remote.example` como `.env.dev`, `.env.test` o `.env.prod` en el servidor y ajustar URL, puerto, red, ruta del archivo cifrado y clave maestra. Los archivos `.env.<ambiente>` y `secrets.<ambiente>.aes256.json` no deben versionarse.
+
 ## Mapeo de ramas
 
 | Rama | GitHub Environment | Archivo preferido |
@@ -51,4 +62,3 @@ Crear en GitHub los environments `development`, `testing` y `production`. En cad
 ## Comportamiento
 
 El servidor actualiza únicamente mediante `git pull --ff-only`; si existen cambios locales o la historia diverge, el despliegue se detiene sin sobrescribir archivos. Luego actualiza las imágenes, levanta Compose y ejecuta el health check configurado.
-

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEncryptedSecrets(builder.Environment.ContentRootPath);
@@ -30,6 +31,9 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<BookingService>();
 builder.Services.AddScoped<AdministrationService>();
+builder.Services.Configure<Microsoft365Options>(builder.Configuration.GetSection(Microsoft365Options.Section));
+builder.Services.AddHttpClient("MicrosoftGraph", client => { client.Timeout = TimeSpan.FromSeconds(15); client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json")); });
+builder.Services.AddScoped<MicrosoftIntegrationService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {

@@ -26,3 +26,4 @@ La documentación debe actualizarse junto con los cambios funcionales y técnico
 
 - [Despliegues automáticos](operations/automatic-deployments.md)
 - [Secretos cifrados con AES-256-GCM](operations/encrypted-secrets.md)
+- [Integraciones Microsoft 365](operations/microsoft-integrations.md)

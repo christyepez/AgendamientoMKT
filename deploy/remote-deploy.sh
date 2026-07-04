@@ -16,16 +16,20 @@ git checkout "$branch"
 git pull --ff-only origin "$branch"
 
 compose_file="deploy/docker-compose.${environment}.yml"
-if [[ ! -f "$compose_file" ]]; then
-  compose_file="docker-compose.yml"
-fi
+[[ -f "$compose_file" ]] || compose_file="deploy/docker-compose.remote.yml"
 
 if [[ ! -f "$compose_file" ]]; then
   echo "No Compose file found for $environment." >&2
   exit 1
 fi
 
-docker compose -f "$compose_file" pull
-docker compose -f "$compose_file" up -d --remove-orphans
-docker compose -f "$compose_file" ps
+env_file="deploy/.env.${environment}"
+if [[ ! -f "$env_file" ]]; then
+  echo "Missing environment file: $env_file" >&2
+  exit 1
+fi
 
+export IMAGE_TAG="$branch"
+docker compose --project-name "agendamiento-mkt-${environment}" --env-file "$env_file" -f "$compose_file" pull
+docker compose --project-name "agendamiento-mkt-${environment}" --env-file "$env_file" -f "$compose_file" up -d --remove-orphans
+docker compose --project-name "agendamiento-mkt-${environment}" --env-file "$env_file" -f "$compose_file" ps
