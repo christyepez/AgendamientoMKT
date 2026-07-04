@@ -12,6 +12,8 @@ MVP ejecutable en desarrollo: API, frontend, autenticación, permisos, administr
 
 - [Arquitectura del módulo Booking](docs/architecture/arquitectura-modulo-booking-marketing.md)
 - [Stack tecnológico y estructura backend](docs/architecture/technology-stack.md)
+- [Manual técnico completo](docs/technical/technical-manual.md)
+- [Manual funcional con capturas](docs/functional/functional-manual.md)
 - [Índice de documentación](docs/README.md)
 - [Despliegues automáticos](docs/operations/automatic-deployments.md)
 - [Secretos cifrados con AES-256-GCM](docs/operations/encrypted-secrets.md)
