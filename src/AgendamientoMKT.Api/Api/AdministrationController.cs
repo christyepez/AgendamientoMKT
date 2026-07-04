@@ -25,6 +25,9 @@ public sealed class AdministrationController(IAdministrationRepository repositor
     [HttpGet("parameters"), Authorize(Policy = "PARAMETERS.MANAGE")]
     public Task<IReadOnlyCollection<ParameterDto>> Parameters(CancellationToken ct) => service.ParametersAsync(ct);
 
+    [HttpGet("configuration-center"), Authorize(Policy = "PARAMETERS.MANAGE")]
+    public Task<ConfigurationCenterDto> ConfigurationCenter(CancellationToken ct) => service.ConfigurationCenterAsync(ct);
+
     [HttpPut("parameters/{id:guid}"), Authorize(Policy = "PARAMETERS.MANAGE")]
     public async Task<IActionResult> UpdateParameter(Guid id, UpdateParameterRequest request, CancellationToken ct)
     {

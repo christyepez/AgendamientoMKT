@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./configuration.css";
 
 export const metadata: Metadata = { title: "Agendamiento MKT", description: "Planificación y capacidad del equipo de Marketing" };
 

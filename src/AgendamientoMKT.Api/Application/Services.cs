@@ -52,6 +52,7 @@ public sealed class UserService(IUserRepository users, IUnitOfWork unit, IPasswo
 
 public sealed class AdministrationService(IAdministrationRepository repository, UserService users, IUnitOfWork unit, IAuditWriter audit, IClock clock)
 {
+    public async Task<ConfigurationCenterDto> ConfigurationCenterAsync(CancellationToken ct) => new(await repository.ParametersAsync(ct), await repository.SitesAsync(ct), await repository.ServicesAsync(ct), await repository.RoleConfigurationAsync(ct), await repository.ScreensAsync(ct), await repository.AllMenuAsync(ct));
     public Task<IReadOnlyCollection<UserListDto>> UsersAsync(CancellationToken ct) => repository.UsersAsync(ct);
     public async Task<Guid> CreateUserAsync(CreateUserRequest request, CancellationToken ct) => await users.CreateAsync(request, await repository.RolesByIdsAsync(request.RoleIds, ct), ct);
     public Task<IReadOnlyCollection<ParameterDto>> ParametersAsync(CancellationToken ct) => repository.ParametersAsync(ct);

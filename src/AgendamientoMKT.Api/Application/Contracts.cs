@@ -18,6 +18,9 @@ public sealed record UpdateParameterRequest(string Value);
 public sealed record AuditDto(long Id, DateTimeOffset OccurredAt, Guid? ActorId, string Action, string EntityType, string EntityId, string DataJson);
 public sealed record MetricSummaryDto(string ScreenCode, int Visits, double AverageDurationMs, int Errors);
 public sealed record UserListDto(Guid Id, string Email, string DisplayName, Guid SiteId, bool IsActive, IReadOnlyCollection<string> Roles);
+public sealed record ScreenDto(Guid Id, string Code, string Name, string Route, bool IsActive);
+public sealed record RoleConfigDto(Guid Id, string Code, string Name, bool IsActive, IReadOnlyCollection<string> Permissions);
+public sealed record ConfigurationCenterDto(IReadOnlyCollection<ParameterDto> Parameters, IReadOnlyCollection<LookupDto> Sites, IReadOnlyCollection<LookupDto> Services, IReadOnlyCollection<RoleConfigDto> Roles, IReadOnlyCollection<ScreenDto> Screens, IReadOnlyCollection<MenuDto> Menu);
 public sealed record BookingDto(Guid Id, Guid RequirementId, Guid ActivityId, string Title, string Priority, decimal EstimatedHours, string Status, int Version, IReadOnlyCollection<AssignmentDto> Assignments);
 public sealed record AssignmentDto(Guid Id, Guid UserId, string Role, decimal AllocatedHours, string Confirmation, IReadOnlyCollection<BlockDto> Blocks);
 public sealed record BlockDto(Guid Id, DateTimeOffset Start, DateTimeOffset End, decimal Hours);
@@ -56,4 +59,7 @@ public interface IAdministrationRepository
     Task<IReadOnlyCollection<AuditDto>> AuditAsync(int take, CancellationToken ct);
     Task<IReadOnlyCollection<MetricSummaryDto>> MetricsAsync(DateTimeOffset from, CancellationToken ct);
     Task<IReadOnlyCollection<UserListDto>> UsersAsync(CancellationToken ct);
+    Task<IReadOnlyCollection<RoleConfigDto>> RoleConfigurationAsync(CancellationToken ct);
+    Task<IReadOnlyCollection<ScreenDto>> ScreensAsync(CancellationToken ct);
+    Task<IReadOnlyCollection<MenuDto>> AllMenuAsync(CancellationToken ct);
 }
