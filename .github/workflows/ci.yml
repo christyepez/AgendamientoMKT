@@ -11,8 +11,7 @@ permissions:
 
 env:
   MSSQL_SA_PASSWORD: CiOnly_StrongPassword_2026!
-  JWT_KEY: CI_ONLY_CHANGE_THIS_KEY_32_BYTES_MINIMUM_2026
-  ADMIN_PASSWORD: CiOnly.Admin.Password.2026!
+  AGENDAMIENTO_MASTER_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 
 concurrency:
   group: ci-${{ github.ref }}

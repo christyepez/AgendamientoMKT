@@ -8,5 +8,8 @@
 **/*.user
 **/*.log
 .env
+config/secrets.aes256.json
+config/secrets.*.aes256.json
+config/secrets.plain.json
 docs
 tests

@@ -2,6 +2,7 @@ using System.Text;
 using AgendamientoMKT.Api.Api;
 using AgendamientoMKT.Api.Application;
 using AgendamientoMKT.Api.Domain;
+using AgendamientoMKT.Api.Infrastructure;
 using AgendamientoMKT.Api.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEncryptedSecrets(builder.Environment.ContentRootPath);
 var connectionString = builder.Configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("ConnectionStrings:Default is required.");
 var jwt = builder.Configuration.GetSection(JwtOptions.Section).Get<JwtOptions>() ?? throw new InvalidOperationException("JWT configuration is required.");
 if (Encoding.UTF8.GetByteCount(jwt.Key) < 32) throw new InvalidOperationException("Jwt:Key must contain at least 32 bytes.");

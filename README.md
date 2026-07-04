@@ -14,6 +14,7 @@ MVP ejecutable en desarrollo: API, frontend, autenticación, permisos, administr
 - [Stack tecnológico y estructura backend](docs/architecture/technology-stack.md)
 - [Índice de documentación](docs/README.md)
 - [Despliegues automáticos](docs/operations/automatic-deployments.md)
+- [Secretos cifrados con AES-256-GCM](docs/operations/encrypted-secrets.md)
 
 ## Estructura prevista
 
@@ -42,11 +43,11 @@ AgendamientoMKT/
 ## Base de datos local
 
 ```powershell
-Copy-Item .env.example .env
-docker compose run --rm sqlserver-init
+.\scripts\Initialize-LocalSecrets.ps1
+docker compose up -d --build
 ```
 
-Docker Compose reutiliza `requirements-sqlserver` y crea la base `AgendamientoMKT` de forma idempotente, sin levantar una segunda instancia. Después levanta API, web y Nginx.
+El script genera una clave local, cifra la configuración y elimina el JSON temporal. Docker Compose reutiliza `requirements-sqlserver` y levanta API, web y Nginx sin incluir secretos en las imágenes.
 
 Accesos locales:
 
@@ -60,6 +61,8 @@ Usuario inicial local:
 - Contraseña: la configurada en `ADMIN_PASSWORD`.
 
 Las credenciales del archivo de ejemplo deben reemplazarse antes de almacenar información real.
+
+Los valores sensibles se guardan en `config/secrets.aes256.json`, cifrados y autenticados con AES-256-GCM. Consulta la guía antes de iniciar por primera vez.
 
 ## Calidad
 

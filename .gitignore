@@ -2,6 +2,9 @@
 .env
 .env.*
 !.env.example
+config/secrets.aes256.json
+config/secrets.*.aes256.json
+config/secrets.plain.json
 *.local
 
 # Build and test output

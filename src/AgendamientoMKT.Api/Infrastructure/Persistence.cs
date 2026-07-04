@@ -110,7 +110,7 @@ public static class DatabaseInitializer
         db.AddRange(sites); db.AddRange(services); db.AddRange(permissions.Values); db.AddRange(roles); db.AddRange(screens); db.AddRange(menu); db.AddRange(parameters);
 
         var email = configuration["Seed:AdminEmail"] ?? "admin@agendamientomkt.local";
-        var password = configuration["Seed:AdminPassword"] ?? "Admin.ChangeMe.2026!";
+        var password = configuration["Seed:AdminPassword"] ?? throw new InvalidOperationException("Seed:AdminPassword is required for the initial administrator.");
         var user = new AppUser(email, "Administrador", sites[0].Id); user.SetPasswordHash(hasher.HashPassword(user, password));
         user.Roles.Add(new UserRole { User = user, UserId = user.Id, Role = admin, RoleId = admin.Id }); db.Users.Add(user);
         await db.SaveChangesAsync(ct);

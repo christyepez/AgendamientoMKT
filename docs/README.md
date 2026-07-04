@@ -19,3 +19,4 @@ La documentación debe actualizarse junto con los cambios funcionales y técnico
 ## Operación
 
 - [Despliegues automáticos](operations/automatic-deployments.md)
+- [Secretos cifrados con AES-256-GCM](operations/encrypted-secrets.md)

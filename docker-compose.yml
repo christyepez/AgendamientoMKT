@@ -6,8 +6,9 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: agendamiento-mkt-sqlserver-init
     restart: "no"
+    profiles: ["bootstrap"]
     environment:
-      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Configure la misma contraseña de SQL Server en .env}
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-bootstrap-only}
       MSSQL_DATABASE: ${MSSQL_DATABASE:-AgendamientoMKT}
       MSSQL_HOST: ${MSSQL_HOST:-requirements-sqlserver}
     volumes:
@@ -26,15 +27,14 @@ services:
       dockerfile: src/AgendamientoMKT.Api/Dockerfile
     container_name: agendamiento-mkt-api
     restart: unless-stopped
-    depends_on:
-      sqlserver-init:
-        condition: service_completed_successfully
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__Default: Server=${MSSQL_HOST:-requirements-sqlserver};Database=${MSSQL_DATABASE:-AgendamientoMKT};User Id=sa;Password=${MSSQL_SA_PASSWORD};Encrypt=True;TrustServerCertificate=True
-      Jwt__Key: ${JWT_KEY:?Configure JWT_KEY in .env}
+      AGENDAMIENTO_MASTER_KEY: ${AGENDAMIENTO_MASTER_KEY:?Configure AGENDAMIENTO_MASTER_KEY in .env}
+      ENCRYPTED_SECRETS_FILE: /app/config/secrets.aes256.json
+      EncryptedSecrets__Required: "true"
       Seed__AdminEmail: ${ADMIN_EMAIL:-admin@agendamientomkt.local}
-      Seed__AdminPassword: ${ADMIN_PASSWORD:?Configure ADMIN_PASSWORD in .env}
+    volumes:
+      - ./config/secrets.aes256.json:/app/config/secrets.aes256.json:ro
     ports:
       - "${API_PORT:-5200}:8080"
     networks: [requirements-network]
